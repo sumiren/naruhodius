@@ -22,8 +22,10 @@ export class GPTGateway implements IGPTGateway {
         ],
       };
 
+      console.log("request", request);
+
       const response = await this.client.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4-turbo",
         messages: request.messages,
         temperature: 0,
       });

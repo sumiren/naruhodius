@@ -10,7 +10,7 @@
     "start": "node dist/index.js"
   },
   "bin": {
-    "naruhod": "./dist/index.cjs"
+    "naruhodius": "./dist/index.cjs"
   },
   "keywords": [],
   "author": "YourName",

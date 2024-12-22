@@ -82,8 +82,6 @@ program
 
     const directoryStructure = await DirectoryScanner.scanDirectory(".");
 
-    console.log(directoryStructure);
-
     const gptGateway = new GPTGateway(apiKey);
     const promptFactory = new PromptFactory(directoryStructure);
     const kicker = new GPTKicker(gptGateway, promptFactory);
@@ -96,6 +94,7 @@ program
       gptGateway
     );
 
+    console.log("hello naruhodius");
     await orchestrator.start(taskDescription)
 
   });

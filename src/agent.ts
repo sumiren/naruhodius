@@ -65,7 +65,7 @@ export class Agent implements IAgent {
 
   private async handleReadNextNumber(): Promise<ActionResult> {
     const randomNum = Math.floor(Math.random() * 10) + 1;
-    return { type: "readNextNumber", number: randomNum };
+    return { type: "readNextNumber", number: randomNum }
   }
 
   private async handleExecuteCommand(
@@ -73,7 +73,11 @@ export class Agent implements IAgent {
   ): Promise<ActionResult> {
     try {
       console.log("Executing command:", options.command);
-      const { stdout, stderr } = await execPromise(options.command);
+
+      // もし `sed` コマンドに特定のエラーが発生した場合、修正を試みる
+      const correctedCommand = this.correctSedCommand(options.command);
+
+      const { stdout, stderr } = await execPromise(correctedCommand || options.command);
       if (stderr) {
         console.error("Command error:", stderr);
       }
@@ -82,5 +86,15 @@ export class Agent implements IAgent {
       console.error("Execution failed:", error);
       return { type: "executeCommand", output: "", error: error.message };
     }
+  }
+
+// `sed` コマンドを修正する処理
+  private correctSedCommand(command: string): string | null {
+    if (/sed/.test(command) && /1i\\/.test(command)) {
+      console.log("Correcting `sed` command for macOS compatibility...");
+      // BSD 系 sed の期待するフォーマットに変換
+      return command.replace(/1i\\/, "1i \\").replace(/\\n/g, "\n");
+    }
+    return null;
   }
 }
