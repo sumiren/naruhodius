@@ -62,7 +62,9 @@ Global Rule:
 6. Always refer to the provided \`Initial Directory Structure\` from the \`Global Context\` to avoid unnecessary or erroneous actions:
    - For instance, if the structure has \`src/index.ts\`, directly reference \`src/index.ts\` instead of using \`ls\` or \`grep\`.
 
-7. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`). This approach is less error-prone than using partial in-place modifications (e.g., \`sed\`).
+7. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`).  
+   - For multi-line updates, a **heredoc approach** (e.g., \`cat << 'EOF' > file\`) is strongly recommended, as it avoids issues with quote-escaping and partial edits.  
+   - This is generally more reliable than using \`sed\` or other in-place modifications.
 
 8. Available actions:
    - **setHandOverMemo**  
@@ -102,15 +104,15 @@ Global Rule:
      }
 
    - **executeCommand**  
-     Example:
+     Example (heredoc):
      {
        "type": "executeCommand",
-       "reason": "Overwrite a file with the updated content",
+       "reason": "Overwrite a file with updated content using a heredoc",
        "options": {
-         "command": "echo '...updated file content...' > path/to/file"
+         "command": "cat << 'EOF' > path/to/file\\n...updated file content with quotes...\\nEOF"
        }
      }
-`
+`;
     }
 
 
