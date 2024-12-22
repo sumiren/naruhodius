@@ -6,14 +6,18 @@ import {GPTGateway} from "./gateway";
 import {GPTKicker} from "./kicker";
 import {PromptFactory} from "./prompt-factory";
 import {Agent} from "./agent";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 
 
 export class Replier implements IReplier {
   private gptGateway: IGPTGateway;
+  private promptFactory: PromptFactory;
 
-  constructor(gptGateway: IGPTGateway) {
+  constructor(gptGateway: IGPTGateway, promptFactory: PromptFactory) {
     this.gptGateway = gptGateway;
+    this.promptFactory = promptFactory;
   }
 
   async sendReply(
@@ -23,12 +27,38 @@ export class Replier implements IReplier {
   ): Promise<void> {
 
     // PromptFactoryでプロンプトを生成
-    const prompt = PromptFactory.createPrompt(globalContext, context, actionResults);
+    const prompt = this.promptFactory.createPrompt(globalContext, context, actionResults);
 
     // GPTにプロンプトを送信
     const response = await this.gptGateway.sendRequest(prompt);
   }
 }
+
+
+export class DirectoryScanner {
+  static async scanDirectory(basePath: string, excludeDirs: string[] = ["node_modules", ".git", ".idea", "dist"]): Promise<any> {
+    const result: any = {};
+
+    async function scan(dir: string, parent: any) {
+      const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory() && !excludeDirs.includes(entry.name)) {
+          parent[entry.name] = {};
+          await scan(path.join(dir, entry.name), parent[entry.name]);
+        } else if (entry.isFile()) {
+          if (!parent.files) {
+            parent.files = [];
+          }
+          parent.files.push(entry.name);
+        }
+      }
+    }
+
+    await scan(basePath, result);
+    return result;
+  }
+}
+
 
 
 // Orchestratorクラス
@@ -41,18 +71,6 @@ if (!apiKey) {
   process.exit(1);
 }
 
-
-const gptGateway = new GPTGateway(apiKey);
-const kicker = new GPTKicker(gptGateway);
-const replier = new Replier(gptGateway)
-
-const orchestrator = new Orchestrator(
-  kicker,
-  replier,
-  new Agent(),
-  gptGateway
-);
-
 const program = new Command();
 
 program
@@ -61,6 +79,23 @@ program
   .argument("<taskDescription>", "Task description (put it in quotes)")
   .action(async (taskDescription: string) => {
     console.log("taskDescription:", taskDescription);
+
+    const directoryStructure = await DirectoryScanner.scanDirectory(".");
+
+    console.log(directoryStructure);
+
+    const gptGateway = new GPTGateway(apiKey);
+    const promptFactory = new PromptFactory(directoryStructure);
+    const kicker = new GPTKicker(gptGateway, promptFactory);
+    const replier = new Replier(gptGateway, promptFactory)
+
+    const orchestrator = new Orchestrator(
+      kicker,
+      replier,
+      new Agent(),
+      gptGateway
+    );
+
     await orchestrator.start(taskDescription)
 
   });

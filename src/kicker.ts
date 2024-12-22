@@ -3,9 +3,11 @@ import { PromptFactory } from "./prompt-factory";
 
 export class GPTKicker implements IKicker {
   private gptGateway: IGPTGateway;
+  private promptFactory: PromptFactory;
 
-  constructor(gptGateway: IGPTGateway) {
+  constructor(gptGateway: IGPTGateway, promptFactory: PromptFactory) {
     this.gptGateway = gptGateway;
+    this.promptFactory = promptFactory;
   }
 
   async triggerTask(taskDescription:string): Promise<void> {
@@ -24,7 +26,7 @@ export class GPTKicker implements IKicker {
 
     const lastActionResults = {}; // 初回リクエストなので空
 
-    const prompt = PromptFactory.createPrompt(globalContext, context, lastActionResults);
+    const prompt = this.promptFactory.createPrompt(globalContext, context, lastActionResults);
 
     // GPTGatewayにリクエストを送信
     const response = await this.gptGateway.sendRequest(prompt);

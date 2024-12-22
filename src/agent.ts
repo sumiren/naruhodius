@@ -1,4 +1,8 @@
-import {Action, ActionResult, GlobalContext, GptInstructionContext, IAgent, IReplier} from "./if";
+import { Action, ActionResult, GlobalContext, GptInstructionContext, IAgent, IReplier } from "./if";
+import { exec } from "child_process";
+import util from "util";
+
+const execPromise = util.promisify(exec);
 
 export class Agent implements IAgent {
   async react(
@@ -6,14 +10,10 @@ export class Agent implements IAgent {
     actions: Action[],
     replier: IReplier
   ): Promise<void> {
-
-    // `actionResults` を初期化
     const actionResults: ActionResult[] = [];
-    const gptInstructionContext: GptInstructionContext= {} as GptInstructionContext;
+    const gptInstructionContext: GptInstructionContext = {} as GptInstructionContext;
 
     for (const action of actions) {
-      // `taskDone` がある場合は終了
-
       if (action.type === "taskDone") {
         console.log("Agent: taskDone detected. Stopping further actions.");
         return;
@@ -25,13 +25,9 @@ export class Agent implements IAgent {
       }
     }
 
-    // ReplierにactionResultsを渡す
     await replier.sendReply(globalContext, gptInstructionContext, actionResults);
   }
 
-  /**
-   * 単一のアクションを処理し、新しいコンテキストを生成して結果を返す
-   */
   private async performSingleAction(
     action: Action,
     context: GptInstructionContext
@@ -43,6 +39,8 @@ export class Agent implements IAgent {
         return this.handleSetMemory(action.options, context);
       case "readNextNumber":
         return this.handleReadNextNumber();
+      case "executeCommand":
+        return await this.handleExecuteCommand(action.options);
       default:
         throw new Error(`Unknown action type: ${action.type}`);
     }
@@ -53,10 +51,7 @@ export class Agent implements IAgent {
     context: GptInstructionContext
   ): null {
     console.log("Setting hand-over memo:", options.memo);
-
-    // 新しい context を作成して更新
-    context.handOverMemo  = options.memo;
-
+    context.handOverMemo = options.memo;
     return null;
   }
 
@@ -64,16 +59,28 @@ export class Agent implements IAgent {
     options: { memory: any },
     context: GptInstructionContext
   ): null {
-
-    // 新しい context を作成して更新
-    context.memory  = options.memory;
+    context.memory = options.memory;
     return null;
   }
 
   private async handleReadNextNumber(): Promise<ActionResult> {
-    const randomNum = Math.floor(Math.random() * 10) + 1; // 1~10の乱数
-
-    // アクション結果を返す
+    const randomNum = Math.floor(Math.random() * 10) + 1;
     return { type: "readNextNumber", number: randomNum };
+  }
+
+  private async handleExecuteCommand(
+    options: { command: string }
+  ): Promise<ActionResult> {
+    try {
+      console.log("Executing command:", options.command);
+      const { stdout, stderr } = await execPromise(options.command);
+      if (stderr) {
+        console.error("Command error:", stderr);
+      }
+      return { type: "executeCommand", output: stdout.trim(), error: stderr.trim() || undefined };
+    } catch (error) {
+      console.error("Execution failed:", error);
+      return { type: "executeCommand", output: "", error: error.message };
+    }
   }
 }
