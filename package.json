@@ -1,0 +1,27 @@
+{
+  "name": "naruhodius",
+  "version": "1.0.0",
+  "description": "An experimental CLI that orchestrates GPT-based agents and sub-tasks.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs",
+    "start": "node dist/index.js"
+  },
+  "bin": {
+    "naruhod": "./dist/index.cjs"
+  },
+  "keywords": [],
+  "author": "YourName",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "12.1.0",
+    "openai": "4.77.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "esbuild": "0.24.2",
+    "tsx": "4.19.2"
+  }
+}
