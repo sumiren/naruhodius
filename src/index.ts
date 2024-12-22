@@ -19,8 +19,8 @@ if (!apiKey) {
 const program = new Command();
 
 program
-  .name("naruhod")
-  .description("A CLI that uses GPT (SummationGPT) to decide 'read'/'done' until sum >= 100.")
+  .name("naruhodius")
+  .description("A software engineering AI agent")
   .argument("<taskDescription>", "Task description (put it in quotes)")
   .action(async (taskDescription: string) => {
     console.log("taskDescription:", taskDescription);
