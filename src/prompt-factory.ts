@@ -135,8 +135,6 @@ ${JSON.stringify(this.lastActionResults || {})}
   }
 }
 
-
-
 function getUserEnvironmentInfo() {
   const platform = os.platform();
   const osName = platform === 'darwin' ? 'macOS' :
