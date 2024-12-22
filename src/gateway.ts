@@ -22,15 +22,14 @@ export class GPTGateway implements IGPTGateway {
         ],
       };
 
+      console.log("GPT Gateway: sending:");
+      console.log(JSON.stringify({ globalContext: prompt.globalContext, context: prompt.context, lastActionResults: prompt.lastActionResults }, null, 2)); // contextとactionResultsをJSON形式で出力
+
       const response = await this.client.chat.completions.create({
         model: "gpt-4-turbo",
         messages: request.messages,
         temperature: 0,
       });
-
-      console.log("GPT Gateway: sending:");
-
-      console.log(JSON.stringify({ globalContext: prompt.globalContext, context: prompt.context, lastActionResults: prompt.lastActionResults }, null, 2)); // contextとactionResultsをJSON形式で出力
 
 
       const content = response.choices[0]?.message?.content || "";
