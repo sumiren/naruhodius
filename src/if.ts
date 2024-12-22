@@ -42,7 +42,8 @@ export type Action =
   | { type: "setHandOverMemo"; reason: string; options: SetHandOverMemoOptions }
   | { type: "setMemory"; reason: string; options: SetMemoryOptions }
   | { type: "readNextNumber"; reason: string }
-  | { type: "taskDone"; reason: string }
+  | { type: "taskDone"; report: string }
+  | { type: "taskRejected"; reason: string }
   | { type: "executeCommand"; reason: string; options: ExecuteCommandOptions };
 
 // コンテキスト型
