@@ -67,7 +67,7 @@ export class Agent implements IAgent {
   }
 
   private async handleExecuteCommand(
-    options: { command: string }
+    options: ExecuteCommandOptions
   ): Promise<ActionResult> {
     try {
       console.log("Executing command:", options.command);
@@ -75,7 +75,7 @@ export class Agent implements IAgent {
       if (stderr) {
         console.error("Command error:", stderr);
       }
-      return { type: "executeCommand", output: stdout.trim(), error: stderr.trim() || undefined };
+      return { type: "executeCommand", output: stdout.trim(), error: stderr.trim() || undefined, options  };
     } catch (error) {
       console.error("Execution failed:", error);
       return { type: "executeCommand", output: "", error: error.message };

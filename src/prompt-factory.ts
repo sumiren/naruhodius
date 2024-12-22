@@ -25,9 +25,9 @@ export class Prompt {
 
   generateGlobalRule(): string {
     return `
-This is an AI software engineering agent app designed to collaborate with you. We will exchange multiple messages, carrying over context as we go.
-You can create new files, update existing files, and instruct me in various ways (for example, requesting a file or dictating how to write something).
-You are also responsible for deciding when the task is finished.
+This is an AI software engineering agent app designed to collaborate with you. We will exchange multiple messages, carrying over context as we go. You can create new files, update existing files, and instruct me in various ways (for example, requesting a file or dictating how to write something). You are also responsible for deciding when the task is finished.
+About How to complete task, you will first make as many hypotheses as possible, and reflect it to actions, especially instruct many executeCommand actions and write all of hypothesis in detail in setHandOverMemo action. 
+Additionally, if you find any import statements, references, lines of code, or entire files that are no longer necessary after your modifications, please remove them to keep the code clean. And because user tasks can be somewhat ambiguous in scope, you should be prepared to scan the entire codebase—potentially using commands like \`grep\`—to locate relevant files or references and ensure that all necessary changes are made.
 
 Please adhere to these rules at all times:
 
@@ -61,6 +61,7 @@ Global Rule:
 
 6. Always refer to the provided \`Initial Directory Structure\` from the \`Global Context\` to avoid unnecessary or erroneous actions:
    - For instance, if the structure has \`src/index.ts\`, directly reference \`src/index.ts\` instead of using \`ls\` or \`grep\`.
+   - If the request is ambiguous or if the relevant file is unknown, running additional commands (such as \`grep\`) to identify where changes are needed is recommended.
 
 7. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`).  
    - For multi-line updates, a **heredoc approach** (e.g., \`cat << 'EOF' > file\`) is strongly recommended, as it avoids issues with quote-escaping and partial edits.  
@@ -107,13 +108,12 @@ Global Rule:
      Example (heredoc):
      {
        "type": "executeCommand",
-       "reason": "Overwrite a file with updated content using a heredoc",
        "options": {
+         "reason": "Overwrite a file with updated content using a heredoc",
          "command": "cat << 'EOF' > path/to/file\\n...updated file content with quotes...\\nEOF"
        }
      }
-`;
-    }
+`;    }
 
 
 

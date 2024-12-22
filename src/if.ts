@@ -35,16 +35,16 @@ export interface SetMemoryOptions {
 
 export interface ExecuteCommandOptions {
   command: string;
+  reason: string
 }
 
 // アクション全体を型安全に定義
 export type Action =
   | { type: "setHandOverMemo"; options: SetHandOverMemoOptions }
   | { type: "setMemory"; options: SetMemoryOptions }
-  | { type: "readNextNumber"; reason: string }
   | { type: "taskDone"; report: string }
   | { type: "taskRejected"; reason: string }
-  | { type: "executeCommand"; reason: string; options: ExecuteCommandOptions };
+  | { type: "executeCommand"; options: ExecuteCommandOptions };
 
 // コンテキスト型
 export interface GptInstructionContext {
@@ -59,5 +59,4 @@ export interface GPTInstruction {
 
 // ActionResultの型定義
 export type ActionResult =
-  | { type: "readNextNumber"; number: number } // `readNextNumber` の結果
-  | { type: "executeCommand"; output: string; error?: string }; // `executeCommand` の結果
+  | { type: "executeCommand"; options: ExecuteCommandOptions, output: string; error?: string }; // `executeCommand` の結果
