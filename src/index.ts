@@ -1,4 +1,3 @@
-import {IGPTGateway, IReplier, IAgent, Action, GptInstructionContext, ActionResult} from "./if";
 import {Orchestrator} from "./orchestrator";
 import { Command } from "commander";
 import process from "process";
@@ -6,62 +5,8 @@ import {GPTGateway} from "./gateway";
 import {GPTKicker} from "./kicker";
 import {PromptFactory} from "./prompt-factory";
 import {Agent} from "./agent";
-import * as fs from "node:fs";
-import * as path from "node:path";
-
-
-
-export class Replier implements IReplier {
-  private gptGateway: IGPTGateway;
-  private promptFactory: PromptFactory;
-
-  constructor(gptGateway: IGPTGateway, promptFactory: PromptFactory) {
-    this.gptGateway = gptGateway;
-    this.promptFactory = promptFactory;
-  }
-
-  async sendReply(
-    globalContext: any,
-    context: GptInstructionContext,
-    actionResults: ActionResult[]
-  ): Promise<void> {
-
-    // PromptFactoryでプロンプトを生成
-    const prompt = this.promptFactory.createPrompt(globalContext, context, actionResults);
-
-    // GPTにプロンプトを送信
-    const response = await this.gptGateway.sendRequest(prompt);
-  }
-}
-
-
-export class DirectoryScanner {
-  static async scanDirectory(basePath: string, excludeDirs: string[] = ["node_modules", ".git", ".idea", "dist"]): Promise<any> {
-    const result: any = {};
-
-    async function scan(dir: string, parent: any) {
-      const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && !excludeDirs.includes(entry.name)) {
-          parent[entry.name] = {};
-          await scan(path.join(dir, entry.name), parent[entry.name]);
-        } else if (entry.isFile()) {
-          if (!parent.files) {
-            parent.files = [];
-          }
-          parent.files.push(entry.name);
-        }
-      }
-    }
-
-    await scan(basePath, result);
-    return result;
-  }
-}
-
-
-
-// Orchestratorクラス
+import {Replier} from "./replier";
+import {DirectoryScanner} from "./util";
 
 
 // OpenAI APIキーを環境変数から取得
