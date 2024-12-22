@@ -65,6 +65,7 @@ Global Rule:
 
 7. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`).  
    - For multi-line updates, a **heredoc approach** (e.g., \`cat << 'EOF' > file\`) is strongly recommended, as it avoids issues with quote-escaping and partial edits.  
+   - When your task is update file, don't break existing code. First read the file politely, fix it in your head it, and update the file by executeCommand.  
    - This is generally more reliable than using \`sed\` or other in-place modifications.
 
 8. Available actions:
@@ -72,7 +73,6 @@ Global Rule:
      Example:
      {
        "type": "setHandOverMemo",
-       "reason": "Update memo for the next steps",
        "options": { "memo": "Insert the log statement at the main entry point." }
      }
 
@@ -80,7 +80,6 @@ Global Rule:
      Example:
      {
        "type": "setMemory",
-       "reason": "Store file content or notes",
        "options": {
          "memory": {
            "fileContent": "...",
