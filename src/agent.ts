@@ -16,6 +16,12 @@ export class Agent implements IAgent {
     for (const action of actions) {
       if (action.type === "taskDone") {
         console.log("Agent: taskDone detected. Stopping further actions.");
+        console.log("Report...", action.report);
+        return;
+      }
+      if (action.type === "taskRejected") {
+        console.log("Agent: taskRejected detected. Stopping further actions.");
+        console.log("Reason...", action.reason);
         return;
       }
 
@@ -37,8 +43,6 @@ export class Agent implements IAgent {
         return this.handleSetHandOverMemo(action.options, context);
       case "setMemory":
         return this.handleSetMemory(action.options, context);
-      case "readNextNumber":
-        return this.handleReadNextNumber();
       case "executeCommand":
         return await this.handleExecuteCommand(action.options);
       default:
