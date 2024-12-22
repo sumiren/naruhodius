@@ -50,7 +50,6 @@ export class Agent implements IAgent {
     options: { memo: string },
     context: GptInstructionContext
   ): null {
-    console.log("Setting hand-over memo:", options.memo);
     context.handOverMemo = options.memo;
     return null;
   }
