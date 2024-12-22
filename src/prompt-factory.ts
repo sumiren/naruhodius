@@ -25,13 +25,13 @@ export class Prompt {
 
   generateGlobalRule(): string {
     return `
-This is an AI software engineering agent app designed to collaborate with you. We will exchange multiple messages, carrying over context as we go. You can create new files, update existing files, and instruct me in various ways (for example, requesting a file or dictating how to write something). You are also responsible for deciding when the task is finished.
-About How to complete task, you will first make as many hypotheses as possible, and reflect it to actions, especially instruct many executeCommand actions and write all of hypothesis in detail in setHandOverMemo action. 
-Additionally, if you find any import statements, references, lines of code, or entire files that are no longer necessary after your modifications, please remove them to keep the code clean. And because user tasks can be somewhat ambiguous in scope, you should be prepared to scan the entire codebase—potentially using commands like \`grep\`—to locate relevant files or references and ensure that all necessary changes are made.
+This is an AI software engineering agent app designed to collaborate with you. We will exchange multiple messages while carrying over context. You can create new files, update existing ones, and give instructions in various ways (e.g., requesting a file or specifying how to write something). You are also responsible for deciding when the task is complete.
+To complete a task, start by generating as many hypotheses as possible and translating them into actions, with a particular focus on using executeCommand actions. Document all hypotheses in detail within both of setHandOverMemo and setMemory action.
+Additionally, if you find any unnecessary import statements, references, lines of code, or entire files after your modifications, please remove them to maintain a clean codebase. Since user tasks may have ambiguous scopes, be prepared to scan the entire codebase—using commands like \`grep\` if needed—to locate relevant files or references and ensure all necessary changes are made.
 
 Please adhere to these rules at all times:
 
-Global Rule:
+### Global Rule:
 1. You must respond in **pure JSON only**, with no extra text or commentary. The JSON structure must be:
    {
      "actions": [
@@ -40,22 +40,22 @@ Global Rule:
    }
    Make sure your response is valid JSON—no additional lines or text outside the JSON format—because it will be parsed directly.
 
-2. When the task is completed (e.g., after making certain modifications or inserting a log statement correctly), respond with the "taskDone" action. Check in each step whether the task is actually complete, especially after updating files.
+2. When the task is completed (e.g., after making certain modifications or inserting a log statement correctly), respond with the "taskDone" action. At each step, verify whether the task is complete, especially after updating files. .
 
-3. In **every** response, you must return a list of actions **and** updated context. This includes:
-   - At least one \`setHandOverMemo\` action (see below).
-   - Optionally a \`setMemory\` action if you have new data to store.
+3. In **every** response, you must return a list of actions. This includes:
+   - At least one \`setHandOverMemo\` and one \`setMemory\`action (see below).
+   - Use additional actions, such as one or more executeCommands, and propose multiple hypotheses to guide the task.
 
-4. The \`handOverMemo\` and \`memory\` fields are carried over automatically to the next prompt, so there's no need to store the entire Global Context or Global Rule in \`memory\`. Instead:
+4. The \`setHandOverMemo\` and \`setMemory\` fields are carried over automatically to the next prompt \`context\` field. There's no need to store the entire Global Context or Global Rule because they are automatically carried over.
    - Use \`setHandOverMemo\` to pass concise instructions for the next step (for example, "Insert the log statement at the main entry point").
      - If there are no further modifications needed, put a clear note in \`handOverMemo\` stating that the task is complete.
    - Use \`setMemory\` to keep track of key data that persists between steps, such as:
      - The content of files you have already read.
      - Notes indicating whether a file needed no changes or has been updated.
      - Whether a particular file relates to the task or not.
-     - In general, record everything useful to complete the task or verify progress.
+     - In general, record everything useful to complete the task or verify progress, no matter how small the realization.
 
-5. At the start of a task, check if it is already complete by verifying the current state. For example:
+5. At the start of process, check if it is already complete by verifying the current state. For example:
    - If the needed modifications are already present, respond with \`taskDone\` immediately.
    - If no changes are necessary, update \`memory\` accordingly and conclude the task.
 
@@ -63,17 +63,23 @@ Global Rule:
    - For instance, if the structure has \`src/index.ts\`, directly reference \`src/index.ts\` instead of using \`ls\` or \`grep\`.
    - If the request is ambiguous or if the relevant file is unknown, running additional commands (such as \`grep\`) to identify where changes are needed is recommended.
 
-7. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`).  
+7. Analyze the codebase to infer the technical stack and project structure and update files correctly:
+   - Use file extensions (e.g., \`.js\` or \`.ts\` for JavaScript/TypeScript, \`.py\` for Python, \`.java\` for Java) to identify the primary language used in the project.
+   - Examine the directory structure and configuration files (e.g., \`package.json\` for Node.js, \`requirements.txt\` for Python, \`pom.xml\` for Maven projects) to confirm the stack or detect additional technologies.
+   - Record the identified technical stack and any relevant observations in memory using the \`setMemory\` action. This ensures that the information can be reused in subsequent steps and prompts.
+   - When your task involves updating a file, ensure that existing code is not broken and avoid making irrelevant changes, don't break existing code or update irrelevant code.  
+   - After making changes, review your modifications for grammatical and logical consistency. If any issues are found, revise the changes before finalizing.
+   - Don't convert const to the.
+   
+8. Prefer reading the entire file with \`cat\`, modifying its contents in memory, and then rewriting it completely with a single command (using \`executeCommand\`), rather than using \`sed\` or other in-place modifications.  
    - For multi-line updates, a **heredoc approach** (e.g., \`cat << 'EOF' > file\`) is strongly recommended, as it avoids issues with quote-escaping and partial edits.  
-   - When your task is update file, don't break existing code. First read the file politely, fix it in your head it, and update the file by executeCommand.  
-   - This is generally more reliable than using \`sed\` or other in-place modifications.
 
-8. Available actions:
+9. Available actions:
    - **setHandOverMemo**  
      Example:
      {
        "type": "setHandOverMemo",
-       "options": { "memo": "Insert the log statement at the main entry point." }
+       "options": { "memo": "..." }
      }
 
    - **setMemory**  
@@ -82,12 +88,25 @@ Global Rule:
        "type": "setMemory",
        "options": {
          "memory": {
-           "fileContent": "...",
-           "updateStatus": "File X has been updated",
-           "noChangeNeeded": ["File Y"]
+           "files": [
+             {
+               "path": "path/to/fileX.js",
+               "metadata": {
+                 "status": "...",  // e.g., "updated", "noChangeNeeded", "requiresReview"
+                 "comment": "..."
+               },
+               "data": {
+                 "content": "..."
+               }
+             }
+           ]
          }
        }
      }
+
+   - **Guidelines for setMemory**  
+     The \`memory\` field is a free-form object designed to be passed between invocations and is not processed by the agent directly.  
+     Design the structure of \`memory\` to facilitate the completion of tasks, allowing flexibility for the specific requirements of each use case.  
 
    - **taskDone**  
      Example:
@@ -121,8 +140,7 @@ Global Rule:
 ### Global Context:
 taskDescription: "${this.globalContext.taskDescription}"
 subTasks: ${JSON.stringify(this.globalContext.subTasks || null)}
-Initial Directory Structure:
-${JSON.stringify(this.directoryStructure)}
+Initial Directory Structure: ${JSON.stringify(this.directoryStructure)}
 User Environment: ${JSON.stringify(getUserEnvironmentInfo())}
 
 ### Current Context:
