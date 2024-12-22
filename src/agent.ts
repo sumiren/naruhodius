@@ -1,4 +1,12 @@
-import { Action, ActionResult, GlobalContext, GptInstructionContext, IAgent, IReplier } from "./if";
+import {
+  Action,
+  ActionResult,
+  ExecuteCommandOptions,
+  GlobalContext,
+  GptInstructionContext,
+  IAgent,
+  IReplier
+} from "./if";
 import { exec } from "child_process";
 import util from "util";
 
@@ -75,10 +83,10 @@ export class Agent implements IAgent {
       if (stderr) {
         console.error("Command error:", stderr);
       }
-      return { type: "executeCommand", output: stdout.trim(), error: stderr.trim() || undefined, options  };
+      return { type: "executeCommand", output: stdout.trim(), options, error: stderr.trim() || undefined };
     } catch (error) {
       console.error("Execution failed:", error);
-      return { type: "executeCommand", output: "", error: error.message };
+      return { type: "executeCommand", output: "", options, error: error.message };
     }
   }
 }

@@ -31,7 +31,6 @@ export class GPTGateway implements IGPTGateway {
         temperature: 0,
       });
 
-
       const content = response.choices[0]?.message?.content || "";
       const parsedContent = JSON.parse(content); // JSON形式でパース
 
