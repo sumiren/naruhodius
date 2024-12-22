@@ -94,7 +94,6 @@ program
       gptGateway
     );
 
-    console.log("hello naruhodius");
     await orchestrator.start(taskDescription)
 
   });
