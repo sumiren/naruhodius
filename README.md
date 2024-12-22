@@ -6,6 +6,7 @@ Naruhodius is a CLI-based AI software engineering agent. It aims to:
 
 ⚠️ **Important Notice**  
 This tool may generate or execute dangerous code. Use it responsibly and at your own risk.
+* https://github.com/sumiren/naruhodius/blob/main/src/agent.ts#L76-L91
 
 # Installation
 

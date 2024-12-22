@@ -1,8 +1,8 @@
 {
   "name": "naruhodius",
-  "version": "1.0.0",
-  "description": "An experimental CLI that orchestrates GPT-based agents and sub-tasks.",
-  "main": "dist/index.js",
+  "version": "0.0.1",
+  "description": "a somewhat dangerous software engineering AI agent",
+  "main": "dist/index.cjs",
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -13,7 +13,7 @@
     "naruhodius": "./dist/index.cjs"
   },
   "keywords": [],
-  "author": "YourName",
+  "author": "sumiren",
   "license": "MIT",
   "dependencies": {
     "commander": "12.1.0",
