@@ -39,8 +39,8 @@ export interface ExecuteCommandOptions {
 
 // アクション全体を型安全に定義
 export type Action =
-  | { type: "setHandOverMemo"; reason: string; options: SetHandOverMemoOptions }
-  | { type: "setMemory"; reason: string; options: SetMemoryOptions }
+  | { type: "setHandOverMemo"; options: SetHandOverMemoOptions }
+  | { type: "setMemory"; options: SetMemoryOptions }
   | { type: "readNextNumber"; reason: string }
   | { type: "taskDone"; report: string }
   | { type: "taskRejected"; reason: string }
