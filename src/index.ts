@@ -8,7 +8,6 @@ import {Agent} from "./agent";
 import {Replier} from "./replier";
 import {DirectoryScanner} from "./util";
 
-
 // OpenAI APIキーを環境変数から取得
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
@@ -23,6 +22,7 @@ program
   .description("A software engineering AI agent")
   .argument("<taskDescription>", "Task description (put it in quotes)")
   .action(async (taskDescription: string) => {
+    console.time('Processing Time');
     console.log("taskDescription:", taskDescription);
 
     const directoryStructure = await DirectoryScanner.scanDirectory(".");
@@ -39,8 +39,8 @@ program
       gptGateway
     );
 
-    await orchestrator.start(taskDescription)
-
+    await orchestrator.start(taskDescription);
+    console.timeEnd('Processing Time');
   });
 
 program.parse(process.argv);

@@ -5,6 +5,7 @@ import {ChatCompletionMessageParam} from "openai/resources/chat/completions";
 
 export class GPTGateway implements IGPTGateway {
   private client: OpenAI;
+  private static callCount = 0;
   private instructionCallback: (instruction: any) => void = () => {};
 
   constructor(apiKey: string) {
@@ -12,33 +13,35 @@ export class GPTGateway implements IGPTGateway {
   }
 
   async sendRequest(prompt: Prompt): Promise<any> {
+    GPTGateway.callCount++;
+    console.log(`GPT Gateway: Call #${GPTGateway.callCount}`);
     try {
       const request: { messages: ChatCompletionMessageParam[] } = {
         messages: [
-          // globalRule を system メッセージに設定
           { role: "system", content: prompt.generateGlobalRule() },
-          // タスク固有のプロンプトを user メッセージに設定
           { role: "user", content: prompt.generatePrompt() },
         ],
       };
 
       console.log("GPT Gateway: sending:");
-      console.log(JSON.stringify({ globalContext: prompt.globalContext, context: prompt.context, lastActionResults: prompt.lastActionResults }, null, 2)); // contextとactionResultsをJSON形式で出力
+      console.log(JSON.stringify({ globalContext: prompt.globalContext, context: prompt.context, lastActionResults: prompt.lastActionResults }, null, 2));
 
+      const startTime = Date.now();
       const response = await this.client.chat.completions.create({
         model: "gpt-4-turbo",
         messages: request.messages,
         temperature: 0,
       });
+      const endTime = Date.now();
+      console.log(`Response time: ${endTime - startTime} ms`);
 
       const content = response.choices[0]?.message?.content || "";
-      const parsedContent = JSON.parse(content); // JSON形式でパース
+      const parsedContent = JSON.parse(content);
 
 
       console.log("GPT Gateway: received:");
-      console.log(JSON.stringify(parsedContent, null, 2)); // GPTからのレスポンスをJSON形式で出力
+      console.log(JSON.stringify(parsedContent, null, 2));
 
-      // instructionCallbackを呼び出してレスポンスを通知
       if (this.instructionCallback) {
         this.instructionCallback(parsedContent);
       }
