@@ -13,6 +13,8 @@ import util from "util";
 const execPromise = util.promisify(exec);
 
 export class Agent implements IAgent {
+  activityLogs: RecordActivityLogOptions[] = [];
+
   async react(
     globalContext: GlobalContext,
     actions: Action[],
@@ -41,6 +43,7 @@ export class Agent implements IAgent {
       }
     }
 
+    gptInstructionContext.activityLogs = this.activityLogs;
     await replier.sendReply(globalContext, gptInstructionContext, actionResults);
   }
 
@@ -82,10 +85,7 @@ export class Agent implements IAgent {
     options: RecordActivityLogOptions,
     context: GptInstructionContext
   ): null {
-    if (!context.activityLogs) {
-      context.activityLogs = [];
-    }
-    context.activityLogs.push(options);
+    this.activityLogs.push(options);
     return null;
   }
 
