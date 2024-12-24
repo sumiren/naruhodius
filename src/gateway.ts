@@ -28,7 +28,7 @@ export class GPTGateway implements IGPTGateway {
 
       const startTime = Date.now();
       const response = await this.client.chat.completions.create({
-        model: "gpt-4-turbo",
+        model: "gpt-4o",
         messages: request.messages,
         temperature: 0,
       });
@@ -36,7 +36,11 @@ export class GPTGateway implements IGPTGateway {
       console.log(`Response time: ${endTime - startTime} ms`);
 
       const content = response.choices[0]?.message?.content || "";
-      const parsedContent = JSON.parse(content);
+      const cleanedContent = content
+        .replace(/```json\s*/g, "") // "```json" を削除
+        .replace(/```/g, "")        // 終了の "```" を削除
+        .trim();
+      const parsedContent = JSON.parse(cleanedContent);
 
 
       console.log("GPT Gateway: received:");
