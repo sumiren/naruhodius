@@ -18,4 +18,3 @@ This tool may generate or execute dangerous code. Use it responsibly and at your
 # Usage
 
 * `export OPENAI_API_KEY=your-api-key`
-* `naruhodius "Log 'hello world' at the entry point"`
