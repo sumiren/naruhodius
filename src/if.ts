@@ -22,13 +22,9 @@ export interface GlobalContext {
 }
 
 // 各アクションの型定義
-export type ActionType = "setHandOverMemo" | "setMemory" | "readNextNumber" | "taskDone" | "executeCommand";
+export type ActionType = "setMemory" | "readNextNumber" | "taskDone" | "executeCommand";
 
 // 各アクションの `options` の型定義
-export interface SetHandOverMemoOptions {
-  memo: string;
-}
-
 export interface SetMemoryOptions {
   memory: any;
 }
@@ -50,7 +46,6 @@ export interface TaskDoneOptions {
 
 // アクション全体を型安全に定義
 export type Action =
-  | { type: "setHandOverMemo"; options: SetHandOverMemoOptions }
   | { type: "setMemory"; options: SetMemoryOptions }
   | { type: "recordActivityLog"; options: RecordActivityLogOptions }
   | { type: "taskDone"; options: TaskDoneOptions }
@@ -59,7 +54,6 @@ export type Action =
 
 // コンテキスト型
 export interface GptInstructionContext {
-  handOverMemo: string; // 申し送りメモ
   memory: any; // タスク進行の内部メモリ
   activityLogs: RecordActivityLogOptions[]
 }

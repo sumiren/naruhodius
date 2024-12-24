@@ -52,8 +52,6 @@ export class Agent implements IAgent {
     context: GptInstructionContext
   ): Promise<ActionResult | null> {
     switch (action.type) {
-      case "setHandOverMemo":
-        return this.handleSetHandOverMemo(action.options, context);
       case "setMemory":
         return this.handleSetMemory(action.options, context);
       case "recordActivityLog":
@@ -63,14 +61,6 @@ export class Agent implements IAgent {
       default:
         throw new Error(`Unknown action type: ${action.type}`);
     }
-  }
-
-  private handleSetHandOverMemo(
-    options: { memo: string },
-    context: GptInstructionContext
-  ): null {
-    context.handOverMemo = options.memo;
-    return null;
   }
 
   private handleSetMemory(

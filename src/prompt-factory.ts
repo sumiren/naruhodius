@@ -47,7 +47,7 @@ Please adhere to these rules at all times:
 1. You must respond in **pure JSON only**, with no extra text or commentary. The JSON structure must be:
    {
      "actions": [
-       { "type": "<setHandOverMemo|setMemory|readNextNumber|taskDone|taskRejected|executeCommand>", "reason": "string", "options": { ...optional } }
+       { "type": "<setMemory|readNextNumber|taskDone|taskRejected|executeCommand>", "reason": "string", "options": { ...optional } }
      ]
    }
    Make sure your response is valid JSON—no additional lines or text outside the JSON format—because it will be parsed directly.
@@ -55,12 +55,10 @@ Please adhere to these rules at all times:
 2. When the task is completed (e.g., after making certain modifications or inserting a log statement correctly), respond with the "taskDone" action. At each step, verify whether the task is complete, especially after updating files. .
 
 3. In **every** response, you must return a list of actions. This includes:
-   - At least one \`setHandOverMemo\` and one \`setMemory\`action and one \`recordActivityLog\`(see below).
+   - At least one \`setMemory\`action and one \`recordActivityLog\`(see below).
    - Use additional actions, such as one or more executeCommands, and propose multiple hypotheses to guide the task.
 
-4. The \`setHandOverMemo\` and \`setMemory\` fields are carried over automatically to the next prompt \`context\`, but every time initialized. There's no need to store the entire Global Context or Global Rule because they are automatically carried over.
-   - Use \`setHandOverMemo\` to pass concise instructions for the next step (for example, "Insert the log statement at the main entry point").
-     - If there are no further modifications needed, put a clear note in \`handOverMemo\` stating that the task is complete.
+4. The \`setMemory\` fields are carried over automatically to the next prompt \`context\`, but every time initialized. There's no need to store the entire Global Context or Global Rule because they are automatically carried over.
    - Use \`setMemory\` to keep track of key data that persists between steps, such as:
      - The content of files you have already read.
      - Notes indicating whether a file needed no changes or has been updated.
@@ -99,13 +97,6 @@ Please adhere to these rules at all times:
    - Don't convert const to the.
 
 9. Available actions:
-   - **setHandOverMemo**  
-     Example:
-     {
-       "type": "setHandOverMemo",
-       "options": { "memo": "..." }
-     }
-
    - **setMemory**  
      Example:
      {
@@ -168,9 +159,8 @@ Please adhere to these rules at all times:
          "command": "cat << 'EOF' > path/to/file\\n...updated file content with quotes...\\nEOF"
        }
      }
-`;    }
-
-
+`;
+  }
 
   generatePrompt(): string {
     return `
@@ -181,7 +171,6 @@ Initial Directory Structure: ${JSON.stringify(this.directoryStructure)}
 User Environment: ${JSON.stringify(getUserEnvironmentInfo())}
 
 ### Current Context:
-handOverMemo: "${this.context.handOverMemo || "null"}"
 memory: ${JSON.stringify(this.context.memory || null)}
 
 ### Last Action Results:
@@ -204,4 +193,3 @@ function getUserEnvironmentInfo() {
     username: os.userInfo().username
   };
 }
-
