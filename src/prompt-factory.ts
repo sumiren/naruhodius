@@ -165,13 +165,13 @@ Please adhere to these rules at all times:
   generatePrompt(): string {
     return `
 ### Global Context:
-taskDescription: "${this.globalContext.taskDescription}"
-subTasks: ${JSON.stringify(this.globalContext.subTasks || null)}
+TaskDescription: "${this.globalContext.taskDescription}"
 Initial Directory Structure: ${JSON.stringify(this.directoryStructure)}
 User Environment: ${JSON.stringify(getUserEnvironmentInfo())}
 
 ### Current Context:
 memory: ${JSON.stringify(this.context.memory || null)}
+activityLogs: ${JSON.stringify(this.context.activityLogs || null)}
 
 ### Last Action Results:
 ${JSON.stringify(this.lastActionResults || {})}
