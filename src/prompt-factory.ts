@@ -59,7 +59,7 @@ Please adhere to these rules at all times:
    - At least one \`setMemory\` action and one \`recordActivityLog\` action (see below), unless the response concludes with a taskDone or taskRejected action, as these indicate that the task is finished or cannot continue, and the agent will not call the AI again for this.
    - Use additional actions, such as one or more executeCommands, and propose multiple hypotheses to guide the task.
 
-4. The \`setMemory\` fields are carried over automatically to the next prompt \`context\`, but every time initialized. There's no need to store the entire Global Context or Global Rule because they are automatically carried over.
+4. The \`setMemory\` fields are carried over automatically to the next prompt \`context\`, but every time initialized. There's no need to store the entire Global Context(initial directory structure, task description, and so on) or Global Rule because they are automatically carried over.
    - Use \`setMemory\` to keep track of key data that persists between steps, such as:
      - The content of files you have already read.
      - Notes indicating whether a file needed no changes or has been updated.
