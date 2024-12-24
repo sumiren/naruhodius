@@ -38,11 +38,15 @@ export interface ExecuteCommandOptions {
   reason: string
 }
 
+export interface TaskDoneOptions {
+  report: string;
+}
+
 // アクション全体を型安全に定義
 export type Action =
   | { type: "setHandOverMemo"; options: SetHandOverMemoOptions }
   | { type: "setMemory"; options: SetMemoryOptions }
-  | { type: "taskDone"; report: string }
+  | { type: "taskDone"; options: TaskDoneOptions }
   | { type: "taskRejected"; reason: string }
   | { type: "executeCommand"; options: ExecuteCommandOptions };
 

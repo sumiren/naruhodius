@@ -24,7 +24,7 @@ export class Agent implements IAgent {
     for (const action of actions) {
       if (action.type === "taskDone") {
         console.log("Agent: taskDone detected. Stopping further actions.");
-        console.log("Report...", action.report);
+        console.log("Report...", action.options.report);
         return;
       }
       if (action.type === "taskRejected") {
