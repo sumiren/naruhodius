@@ -54,8 +54,7 @@ export type Action =
 
 // コンテキスト型
 export interface GptInstructionContext {
-  memory: any; // タスク進行の内部メモリ
-  activityLogs: RecordActivityLogOptions[]
+  activityLog: RecordActivityLogOptions
 }
 
 // GPTからのレスポンス全体

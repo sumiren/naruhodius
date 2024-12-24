@@ -6,6 +6,9 @@ import {ChatCompletionMessageParam} from "openai/resources/chat/completions";
 export class GPTGateway implements IGPTGateway {
   private client: OpenAI;
   private static callCount = 0;
+
+  messages: ChatCompletionMessageParam[] = []
+
   private instructionCallback: (instruction: any) => void = () => {};
 
   constructor(apiKey: string) {
@@ -16,12 +19,12 @@ export class GPTGateway implements IGPTGateway {
     GPTGateway.callCount++;
     console.log(`GPT Gateway: Call #${GPTGateway.callCount}`);
     try {
-      const request: { messages: ChatCompletionMessageParam[] } = {
-        messages: [
+      if (this.messages.length === 0) {
+        this.messages.push(
           { role: "system", content: prompt.generateGlobalRule() },
-          { role: "user", content: prompt.generatePrompt() },
-        ],
-      };
+        );
+      }
+      this.messages.push({ role: "user", content: prompt.generatePrompt() })
 
       console.log("GPT Gateway: sending:");
       console.log(JSON.stringify({ globalContext: prompt.globalContext, context: prompt.context, lastActionResults: prompt.lastActionResults }, null, 2));
@@ -29,12 +32,15 @@ export class GPTGateway implements IGPTGateway {
       const startTime = Date.now();
       const response = await this.client.chat.completions.create({
         model: "gpt-4o",
-        messages: request.messages,
+        messages: this.messages,
         temperature: 0,
       });
       const endTime = Date.now();
       console.log(`Response time: ${endTime - startTime} ms`);
 
+      this.messages.push(response.choices[0]?.message);
+
+      console.log("messages log...", this.messages);
       const content = response.choices[0]?.message?.content || "";
       const cleanedContent = content
         .replace(/```json\s*/g, "") // "```json" を削除

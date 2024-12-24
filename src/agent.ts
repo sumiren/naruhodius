@@ -13,7 +13,6 @@ import util from "util";
 const execPromise = util.promisify(exec);
 
 export class Agent implements IAgent {
-  activityLogs: RecordActivityLogOptions[] = [];
 
   async react(
     globalContext: GlobalContext,
@@ -43,7 +42,6 @@ export class Agent implements IAgent {
       }
     }
 
-    gptInstructionContext.activityLogs = this.activityLogs;
     await replier.sendReply(globalContext, gptInstructionContext, actionResults);
   }
 
@@ -75,7 +73,7 @@ export class Agent implements IAgent {
     options: RecordActivityLogOptions,
     context: GptInstructionContext
   ): null {
-    this.activityLogs.push(options);
+    context.activityLog = options;
     return null;
   }
 
@@ -85,13 +83,38 @@ export class Agent implements IAgent {
     try {
       console.log("Executing command:", options.command);
       const { stdout, stderr } = await execPromise(options.command);
+
       if (stderr) {
         console.error("Command error:", stderr);
       }
-      return { type: "executeCommand", output: stdout.trim(), options, error: stderr.trim() || undefined };
-    } catch (error) {
-      console.error("Execution failed:", error);
-      return { type: "executeCommand", output: "", options, error: error?.toString() };
+
+      return {
+        type: "executeCommand",
+        output: stdout.trim(),
+        options,
+        error: stderr.trim() || undefined,
+      };
+    } catch (error: any) {
+      console.error("Execution failed:");
+      console.error("Error message:", error.message || "No error message");
+      console.error("Error code:", error.code || "No error code");
+      console.error("Signal:", error.signal || "No signal");
+
+      return {
+        type: "executeCommand",
+        output: "",
+        options,
+        error: JSON.stringify(
+          {
+            message: error.message || "Unknown error",
+            code: error.code || "No code",
+            signal: error.signal || "No signal",
+            stack: error.stack || "No stack trace",
+          },
+          null,
+          2
+        ),
+      };
     }
   }
 }

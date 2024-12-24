@@ -20,8 +20,6 @@ export class GPTKicker implements IKicker {
     };
 
     const context = {
-      handOverMemo: null,
-      memory: null,
     };
 
     const lastActionResults = {}; // 初回リクエストなので空
