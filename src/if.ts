@@ -33,6 +33,12 @@ export interface SetMemoryOptions {
   memory: any;
 }
 
+export interface RecordActivityLogOptions {
+  assumedWholeTaskFlow: string
+  thisTimeActivityLog: string;
+  assumedNextAction: string;
+}
+
 export interface ExecuteCommandOptions {
   command: string;
   reason: string
@@ -46,6 +52,7 @@ export interface TaskDoneOptions {
 export type Action =
   | { type: "setHandOverMemo"; options: SetHandOverMemoOptions }
   | { type: "setMemory"; options: SetMemoryOptions }
+  | { type: "recordActivityLog"; options: RecordActivityLogOptions }
   | { type: "taskDone"; options: TaskDoneOptions }
   | { type: "taskRejected"; reason: string }
   | { type: "executeCommand"; options: ExecuteCommandOptions };
@@ -54,6 +61,7 @@ export type Action =
 export interface GptInstructionContext {
   handOverMemo: string; // 申し送りメモ
   memory: any; // タスク進行の内部メモリ
+  activityLogs: RecordActivityLogOptions[]
 }
 
 // GPTからのレスポンス全体

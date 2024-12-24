@@ -5,7 +5,7 @@ import {
   GlobalContext,
   GptInstructionContext,
   IAgent,
-  IReplier
+  IReplier, RecordActivityLogOptions
 } from "./if";
 import { exec } from "child_process";
 import util from "util";
@@ -25,11 +25,13 @@ export class Agent implements IAgent {
       if (action.type === "taskDone") {
         console.log("Agent: taskDone detected. Stopping further actions.");
         console.log("Report...", action.options.report);
+        console.timeEnd('Processing Time');
         return;
       }
       if (action.type === "taskRejected") {
         console.log("Agent: taskRejected detected. Stopping further actions.");
         console.log("Reason...", action.reason);
+        console.timeEnd('Processing Time');
         return;
       }
 
@@ -51,6 +53,8 @@ export class Agent implements IAgent {
         return this.handleSetHandOverMemo(action.options, context);
       case "setMemory":
         return this.handleSetMemory(action.options, context);
+      case "recordActivityLog":
+        return this.handleRecordActivityLog(action.options, context);
       case "executeCommand":
         return await this.handleExecuteCommand(action.options);
       default:
@@ -74,6 +78,17 @@ export class Agent implements IAgent {
     return null;
   }
 
+  private handleRecordActivityLog(
+    options: RecordActivityLogOptions,
+    context: GptInstructionContext
+  ): null {
+    if (!context.activityLogs) {
+      context.activityLogs = [];
+    }
+    context.activityLogs.push(options);
+    return null;
+  }
+
   private async handleExecuteCommand(
     options: ExecuteCommandOptions
   ): Promise<ActionResult> {
@@ -86,7 +101,7 @@ export class Agent implements IAgent {
       return { type: "executeCommand", output: stdout.trim(), options, error: stderr.trim() || undefined };
     } catch (error) {
       console.error("Execution failed:", error);
-      return { type: "executeCommand", output: "", options, error: error.message };
+      return { type: "executeCommand", output: "", options, error: error?.toString() };
     }
   }
 }

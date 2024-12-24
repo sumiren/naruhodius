@@ -40,7 +40,6 @@ program
     );
 
     await orchestrator.start(taskDescription);
-    console.timeEnd('Processing Time');
   });
 
 program.parse(process.argv);
