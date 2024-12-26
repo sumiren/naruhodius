@@ -65,7 +65,6 @@ export class Agent implements IAgent {
     options: { memory: any },
     context: GptInstructionContext
   ): null {
-    context.memory = options.memory;
     return null;
   }
 
@@ -82,7 +81,7 @@ export class Agent implements IAgent {
   ): Promise<ActionResult> {
     try {
       console.log("Executing command:", options.command);
-      const { stdout, stderr } = await execPromise(options.command);
+      const {stdout, stderr} = await execPromise(options.command);
 
       if (stderr) {
         console.error("Command error:", stderr);
@@ -100,20 +99,21 @@ export class Agent implements IAgent {
       console.error("Error code:", error.code || "No error code");
       console.error("Signal:", error.signal || "No signal");
 
+      // stdoutやstderrの内容を追加する
+      const errorDetails = {
+        message: error.message || "Unknown error",
+        code: error.code || "No code",
+        signal: error.signal || "No signal",
+        stack: error.stack || "No stack trace",
+        stdout: error.stdout || "No stdout",
+        stderr: error.stderr || "No stderr",
+      };
+
       return {
         type: "executeCommand",
         output: "",
         options,
-        error: JSON.stringify(
-          {
-            message: error.message || "Unknown error",
-            code: error.code || "No code",
-            signal: error.signal || "No signal",
-            stack: error.stack || "No stack trace",
-          },
-          null,
-          2
-        ),
+        error: JSON.stringify(errorDetails, null, 2), // 詳細なエラー内容をJSONで返す
       };
     }
   }
